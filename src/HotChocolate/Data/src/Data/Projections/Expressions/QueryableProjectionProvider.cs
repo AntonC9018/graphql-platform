@@ -140,6 +140,9 @@ public class QueryableProjectionProvider : ProjectionProvider
 
             var projection = visitorContext.Project<TEntityType>();
 
+            context.LocalContextData = context.LocalContextData.SetItem(
+                "ProjectionVisitorContext", visitorContext);
+
             return ApplyToResult(input, projection);
         };
 }

@@ -33,28 +33,26 @@ public static class QueryableProjectionScopeExtensions
 
     public static Expression CreateMemberInit(this QueryableProjectionScope scope)
     {
-        if (scope.HasAbstractTypes())
-        {
-            Expression lastValue = Expression.Default(scope.RuntimeType);
-
-            foreach (var val in scope.GetAbstractTypes())
-            {
-                var ctor = Expression.New(val.Key);
-                Expression memberInit = Expression.MemberInit(ctor, val.Value);
-
-                lastValue = Expression.Condition(
-                    Expression.TypeIs(scope.Instance.Peek(), val.Key),
-                    Expression.Convert(memberInit, scope.RuntimeType),
-                    lastValue);
-            }
-
-            return lastValue;
-        }
-        else
+        if (!scope.HasAbstractTypes())
         {
             var ctor = Expression.New(scope.RuntimeType);
             return Expression.MemberInit(ctor, scope.Level.Peek());
         }
+
+        Expression lastValue = Expression.Default(scope.RuntimeType);
+
+        foreach (var val in scope.GetAbstractTypes())
+        {
+            var ctor = Expression.New(val.Key);
+            Expression memberInit = Expression.MemberInit(ctor, val.Value);
+
+            lastValue = Expression.Condition(
+                Expression.TypeIs(scope.Instance.Peek(), val.Key),
+                Expression.Convert(memberInit, scope.RuntimeType),
+                lastValue);
+        }
+
+        return lastValue;
     }
 
     public static Expression CreateMemberInitLambda(this QueryableProjectionScope scope)
