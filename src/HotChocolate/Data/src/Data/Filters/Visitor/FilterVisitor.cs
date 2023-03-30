@@ -9,9 +9,9 @@ public class FilterVisitor<TContext, T>
     : FilterVisitorBase<TContext, T>
     where TContext : FilterVisitorContext<T>
 {
-    private readonly FilterOperationCombinator<TContext, T> _combinator;
+    private readonly IFilterOperationCombinator<TContext, T> _combinator;
 
-    public FilterVisitor(FilterOperationCombinator<TContext, T> combinator)
+    public FilterVisitor(IFilterOperationCombinator<TContext, T> combinator)
     {
         _combinator = combinator;
     }
@@ -38,7 +38,7 @@ public class FilterVisitor<TContext, T>
         IFilterField field,
         ObjectFieldNode node)
     {
-        if (field?.Handler is IFilterFieldHandler<TContext, T> handler &&
+        if (field.Handler is IFilterFieldHandler<TContext, T> handler &&
             handler.TryHandleLeave(
                 context,
                 field,

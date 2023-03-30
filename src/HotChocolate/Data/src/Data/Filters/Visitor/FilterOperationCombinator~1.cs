@@ -4,9 +4,9 @@ using System.Diagnostics.CodeAnalysis;
 namespace HotChocolate.Data.Filters;
 
 /// <inheritdoc />
-public abstract class FilterOperationCombinator<TContext, T>
-    : FilterOperationCombinator
-    where TContext : FilterVisitorContext<T>
+public abstract class FilterOperationCombinator<TContext, TExpression>
+    : IFilterOperationCombinator<TContext, TExpression>
+    where TContext : FilterVisitorContext<TExpression>
 {
     /// <summary>
     /// Tries to combine all operations provided by <paramref name="operations"/> with the kind
@@ -21,18 +21,20 @@ public abstract class FilterOperationCombinator<TContext, T>
     /// <returns>True if the combination was successful</returns>
     public abstract bool TryCombineOperations(
         TContext context,
-        Queue<T> operations,
+        Queue<TExpression> operations,
         FilterCombinator combinator,
-        [NotNullWhen(true)] out T? combined);
+        [NotNullWhen(true)] out TExpression? combined);
 
     /// <inheritdoc />
-    public override bool TryCombineOperations<TVisitorContext, TOperation>(
+    public virtual bool TryCombineOperations<TVisitorContext, TOperation>(
         TVisitorContext context,
         Queue<TOperation> operations,
         FilterCombinator combinator,
         [NotNullWhen(true)] out TOperation combined)
+
+        where TVisitorContext : FilterVisitorContext<TOperation>
     {
-        if (operations is Queue<T> operationsOfT &&
+        if (operations is Queue<TExpression> operationsOfT &&
             context is TContext contextOfT &&
             TryCombineOperations(
                 contextOfT,

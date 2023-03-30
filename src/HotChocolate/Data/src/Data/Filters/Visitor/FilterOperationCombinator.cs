@@ -10,7 +10,7 @@ namespace HotChocolate.Data.Filters;
 /// operation of the value node. The combinator is also used to combine
 /// <see cref="FilterCombinator.Or"/> and <see cref="FilterCombinator.And"/> fields
 /// </summary>
-public abstract class FilterOperationCombinator
+public interface IFilterOperationCombinator
 {
     /// <summary>
     /// Tries to combine all operations provided by <paramref name="operations"/> with the kind
@@ -25,7 +25,7 @@ public abstract class FilterOperationCombinator
     /// <typeparam name="TContext">The type of the context</typeparam>
     /// <typeparam name="T">The type of the combined object</typeparam>
     /// <returns>True if the combination was successful</returns>
-    public abstract bool TryCombineOperations<TContext, T>(
+    bool TryCombineOperations<TContext, T>(
         TContext context,
         Queue<T> operations,
         FilterCombinator combinator,
