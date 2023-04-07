@@ -17,11 +17,14 @@ namespace HotChocolate.Data.Projections.Handlers;
 
 public class QueryableFilterInterceptor : IProjectionFieldInterceptor<QueryableProjectionContext>
 {
-    public bool CanHandle(ISelection selection) =>
-        selection.Field.Member is PropertyInfo propertyInfo &&
-        propertyInfo.CanWrite &&
-        selection.Field.ContextData.ContainsKey(ContextVisitFilterArgumentKey) &&
-        selection.Field.ContextData.ContainsKey(ContextArgumentNameKey);
+    public bool CanHandle(ISelection selection)
+    {
+        var field = selection.Field;
+
+        return field.Member is PropertyInfo { CanWrite: true } &&
+               field.ContextData.ContainsKey(ContextVisitFilterArgumentKey) &&
+               field.ContextData.ContainsKey(ContextArgumentNameKey);
+    }
 
     public void BeforeProjection(
         QueryableProjectionContext context,
@@ -38,8 +41,9 @@ public class QueryableFilterInterceptor : IProjectionFieldInterceptor<QueryableP
             context.Selection.Peek().Arguments
                 .TryCoerceArguments(context.ResolverContext, out var coercedArgs) &&
             coercedArgs.TryGetValue(argumentName, out var argumentValue) &&
-            argumentValue.Type is IFilterInputType filterInputType &&
-            argumentValue.ValueLiteral is { } valueNode and not NullValueNode)
+            argumentValue is {
+                Type: IFilterInputType filterInputType,
+                ValueLiteral: { } valueNode and not NullValueNode })
         {
             var filterContext =
                 argumentVisitor(valueNode, filterInputType, false);
